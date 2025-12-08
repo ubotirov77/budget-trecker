@@ -63,7 +63,7 @@ body {
   color: var(--text-sub);
 }
 
-#lang-select {
+#lang-select, #currency-select {
   background: var(--bg-soft);
   border-radius: 999px;
   border: 1px solid rgba(55, 65, 81, 0.9);
@@ -73,15 +73,21 @@ body {
   cursor: pointer;
 }
 
-#lang-select:focus {
+#lang-select:focus, #currency-select:focus {
   outline: none;
   border-color: var(--accent-balance);
 }
 
-.app-header p {
-  margin-top: 6px;
-  color: var(--text-sub);
-  font-size: 0.95rem;
+.currency-selector {
+  margin-top: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: rgba(15, 23, 42, 0.85);
+  border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  width: fit-content;
 }
 
 /* MONTH SELECTOR */
@@ -156,17 +162,9 @@ body {
   font-weight: 600;
 }
 
-.income {
-  border-left: 4px solid var(--accent-income);
-}
-
-.expenses {
-  border-left: 4px solid var(--accent-expenses);
-}
-
-.balance {
-  border-left: 4px solid var(--accent-balance);
-}
+.income { border-left: 4px solid var(--accent-income); }
+.expenses { border-left: 4px solid var(--accent-expenses); }
+.balance { border-left: 4px solid var(--accent-balance); }
 
 /* FORMS */
 .forms {
@@ -221,7 +219,6 @@ button {
   background: linear-gradient(135deg, #3b82f6, #22c55e);
   color: white;
   transition: 0.1s;
-  box-shadow: 0 8px 20px rgba(56, 189, 248, 0.25);
 }
 
 button:hover {
@@ -231,29 +228,14 @@ button:hover {
 
 button:active {
   transform: translateY(0);
-  box-shadow: none;
 }
 
-/* LIST (INCOME LIST) */
+/* LIST */
 .list {
   list-style: none;
   margin-top: 10px;
   max-height: 160px;
   overflow-y: auto;
-  padding-right: 4px;
-}
-
-.list li {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.85rem;
-  padding: 6px 0;
-  border-bottom: 1px dashed rgba(55, 65, 81, 0.7);
-}
-
-.list li span.source {
-  color: var(--text-sub);
 }
 
 /* DELETE BUTTON */
@@ -263,24 +245,11 @@ button:active {
   color: #ef4444;
   cursor: pointer;
   font-size: 14px;
-  width: 30px;
-  padding: 0;
-  box-shadow: none;
-}
-
-.delete-btn:hover {
-  color: #ff2e2e;
 }
 
 /* TABLE */
 .table-section {
   margin-bottom: 18px;
-}
-
-.table-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
 }
 
 table {
@@ -293,36 +262,47 @@ thead {
   background: rgba(15, 23, 42, 0.9);
 }
 
-th,
-td {
+th, td {
   padding: 10px 8px;
   border-bottom: 1px solid rgba(31, 41, 55, 0.85);
-}
-
-th {
-  text-transform: uppercase;
-  font-size: 0.78rem;
-  color: var(--text-sub);
-  letter-spacing: 0.08em;
-}
-
-td.right {
-  text-align: right;
 }
 
 tbody tr:hover {
   background: rgba(255, 255, 255, 0.03);
 }
 
-/* AI ANALYZE SECTION */
-.ai-card {
-  margin-top: 18px;
+/* AI ANALYSIS ROBOT */
+.ai-img-btn {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  overflow: hidden;
+
+  background: #050816;
+  box-shadow:
+    0 8px 25px rgba(0, 0, 0, 0.4),
+    inset 0 2px 4px rgba(255, 255, 255, 0.18),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.8);
+
+  animation: robotFloat 3s ease-in-out infinite;
+  transition: 0.2s;
 }
 
-#analyze-btn {
-  width: auto;
-  padding-inline: 18px;
-  font-size: 0.9rem;
+.ai-img-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ai-img-btn:hover {
+  transform: translateY(-4px) scale(1.05);
+}
+
+/* ROBOT FLOAT ANIMATION */
+@keyframes robotFloat {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+  100% { transform: translateY(0); }
 }
 
 /* FOOTER */
@@ -333,8 +313,34 @@ tbody tr:hover {
   margin-top: 14px;
 }
 
-/* RESPONSIVE */
-@media (max-width: 768px) {
+/* ========================= RESPONSIVE ========================= */
+
+/* TABLET */
+@media (max-width: 1024px) {
+  .summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .forms {
+    grid-template-columns: 1fr;
+  }
+
+  #month-btn {
+    font-size: 1.8rem;
+  }
+
+  .ai-img-btn {
+    width: 80px;
+    height: 80px;
+  }
+}
+
+/* MOBILE */
+@media (max-width: 640px) {
+  body {
+    padding: 12px;
+  }
+
   .summary {
     grid-template-columns: 1fr;
   }
@@ -343,112 +349,34 @@ tbody tr:hover {
     grid-template-columns: 1fr;
   }
 
+  table th, table td {
+    padding: 8px 6px;
+    font-size: 0.75rem;
+  }
+
   #month-btn {
-    font-size: 1.6rem;
+    font-size: 1.5rem;
   }
 
-  .app-header {
-    align-items: flex-start;
+  .ai-img-btn {
+    width: 75px;
+    height: 75px;
+    animation-duration: 2.5s;
   }
 }
-.delete-btn {
-  background: transparent;
-  border: none;
-  color: #ef4444;
-  cursor: pointer;
-  font-size: 14px;
-  width: 30px;
-  padding: 0;
-  box-shadow: none;
-}
-#currency-select {
-  background: var(--bg-soft);
-  border-radius: 999px;
-  border: 1px solid rgba(55, 65, 81, 0.9);
-  color: var(--text-main);
-  font-size: 0.8rem;
-  padding: 4px 10px;
-  cursor: pointer;
-}
-.delete-btn:hover {
-  color: #ff2e2e;
-}
-.ai-img-btn {
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  overflow: hidden;
 
-  background: #111;
-  box-shadow:
-    0 8px 25px rgba(0, 0, 0, 0.4),
-    inset 0 2px 4px rgba(255, 255, 255, 0.2),
-    inset 0 -2px 6px rgba(0, 0, 0, 0.6);
-
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.ai-img-btn img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.ai-img-btn:hover {
-  transform: translateY(-4px) scale(1.05);
-  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.6);
-}
-
-.ai-img-btn:active {
-  transform: scale(0.97);
-}
-.ai-img-btn {
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  overflow: hidden;
-
-  background: #050816;
-  box-shadow:
-    0 8px 25px rgba(0, 0, 0, 0.4),
-    inset 0 2px 4px rgba(255, 255, 255, 0.18),
-    inset 0 -3px 8px rgba(0, 0, 0, 0.8);
-
-  /* this makes it MOVE */
-  animation: robotFloat 3s ease-in-out infinite;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.ai-img-btn img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* hover: a bit stronger motion */
-.ai-img-btn:hover {
-  transform: translateY(-4px) scale(1.05);
-  box-shadow:
-    0 14px 35px rgba(0, 0, 0, 0.6),
-    inset 0 2px 4px rgba(255, 255, 255, 0.2),
-    inset 0 -3px 8px rgba(0, 0, 0, 0.9);
-}
-
-/* keyframes: up–down floating */
-@keyframes robotFloat {
-  0% {
-    transform: translateY(0);
+/* SMALL MOBILE */
+@media (max-width: 400px) {
+  #month-btn {
+    font-size: 1.35rem;
   }
-  50% {
-    transform: translateY(-6px);
+
+  .ai-img-btn {
+    width: 65px;
+    height: 65px;
   }
-  100% {
-    transform: translateY(0);
+
+  .summary .amount {
+    font-size: 1.3rem;
   }
 }
