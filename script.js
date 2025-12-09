@@ -1,5 +1,5 @@
 // -------------------------------
-// LOAD DATA FIRST
+// LOAD DATA FIRST (LOCALSTORAGE)
 // -------------------------------
 let incomeData = JSON.parse(localStorage.getItem("incomeData")) || [];
 let expenseData = JSON.parse(localStorage.getItem("expenseData")) || [];
@@ -27,8 +27,60 @@ const els = {
   expenseCategory: document.getElementById("expense-category"),
   expenseAmount: document.getElementById("expense-amount"),
   langSelect: document.getElementById("lang-select"),
+  currencySelect: document.getElementById("currency-select"),
   aiAnalyzeBtn: document.getElementById("ai-analyze-btn")
 };
+
+// -------------------------------
+// CURRENCY SYSTEM
+// -------------------------------
+let currentCurrency = "KRW";
+
+function formatCurrency(num) {
+  const safe = Number.isFinite(num) ? num : 0;
+  try {
+    return new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency: currentCurrency,
+      maximumFractionDigits: 0
+    }).format(safe);
+  } catch {
+    return `${currentCurrency} ${safe.toLocaleString()}`;
+  }
+}
+
+// Auto-detect region -> default currency
+try {
+  const userLocale = Intl.DateTimeFormat().resolvedOptions().locale;
+  const region = userLocale.split("-")[1];
+
+  const autoMap = {
+    KR: "KRW",
+    US: "USD",
+    GB: "GBP",
+    JP: "JPY",
+    DE: "EUR",
+    FR: "EUR",
+    UZ: "UZS"
+  };
+
+  if (autoMap[region]) {
+    currentCurrency = autoMap[region];
+  }
+} catch {}
+
+// Currency select change
+if (els.currencySelect) {
+  // initial sync
+  els.currencySelect.value = currentCurrency;
+
+  els.currencySelect.addEventListener("change", () => {
+    currentCurrency = els.currencySelect.value;
+    renderSummary();
+    renderIncomeList();
+    renderExpenseTable();
+  });
+}
 
 // -------------------------------
 // SUMMARY
@@ -38,9 +90,9 @@ function renderSummary() {
   const totalExpenses = expenseData.reduce((s, e) => s + (Number(e.amount) || 0), 0);
   const balance = totalIncome - totalExpenses;
 
-  if (els.totalIncome) els.totalIncome.textContent = totalIncome.toLocaleString();
-  if (els.totalExpenses) els.totalExpenses.textContent = totalExpenses.toLocaleString();
-  if (els.totalBalance) els.totalBalance.textContent = balance.toLocaleString();
+  if (els.totalIncome) els.totalIncome.textContent = formatCurrency(totalIncome);
+  if (els.totalExpenses) els.totalExpenses.textContent = formatCurrency(totalExpenses);
+  if (els.totalBalance) els.totalBalance.textContent = formatCurrency(balance);
 }
 
 // -------------------------------
@@ -57,7 +109,7 @@ function renderIncomeList() {
     const li = document.createElement("li");
     li.innerHTML = `
       <span>${item.source}</span>
-      <span>${amount.toLocaleString()}</span>
+      <span>${formatCurrency(amount)}</span>
       <button class="delete-btn">✖</button>
     `;
 
@@ -88,7 +140,7 @@ function renderExpenseTable() {
       <td>${item.date}</td>
       <td>${item.desc}</td>
       <td>${item.category}</td>
-      <td>${amount.toLocaleString()}</td>
+      <td class="right">${formatCurrency(amount)}</td>
       <td><button class="delete-btn">✖</button></td>
     `;
 
@@ -102,7 +154,7 @@ function renderExpenseTable() {
     els.expenseTableBody.appendChild(tr);
   });
 
-  els.expenseCount.textContent = expenseData.length + " items";
+  els.expenseCount.textContent = `${expenseData.length} items`;
 }
 
 // -------------------------------
