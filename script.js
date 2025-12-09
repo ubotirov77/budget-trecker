@@ -24,10 +24,35 @@ if (monthBtn && monthList) {
 }
 
 // -------------------------------
-// DATA STORAGE
+// DATA STORAGE + LOCALSTORAGE
 // -------------------------------
 const incomeData = [];
 const expenseData = [];
+
+// LOAD DATA FROM LOCAL STORAGE
+function loadData() {
+  const inc = localStorage.getItem("incomeData");
+  const exp = localStorage.getItem("expenseData");
+
+  if (inc) {
+    try {
+      const parsed = JSON.parse(inc);
+      if (Array.isArray(parsed)) incomeData.push(...parsed);
+    } catch {}
+  }
+
+  if (exp) {
+    try {
+      const parsed = JSON.parse(exp);
+      if (Array.isArray(parsed)) expenseData.push(...parsed);
+    } catch {}
+  }
+}
+
+function saveData() {
+  localStorage.setItem("incomeData", JSON.stringify(incomeData));
+  localStorage.setItem("expenseData", JSON.stringify(expenseData));
+}
 
 // -------------------------------
 // ELEMENT SHORTCUTS
@@ -69,7 +94,7 @@ function formatCurrency(num) {
   }
 }
 
-// optional: auto-detect region -> currency
+// optional auto-detect
 try {
   const userLocale = Intl.DateTimeFormat().resolvedOptions().locale;
   const region = userLocale.split("-")[1];
@@ -88,9 +113,7 @@ try {
     currentCurrency = autoMap[region];
     if (els.currencySelect) els.currencySelect.value = currentCurrency;
   }
-} catch {
-  // ignore, default KRW
-}
+} catch {}
 
 // currency change
 if (els.currencySelect) {
@@ -103,7 +126,7 @@ if (els.currencySelect) {
 }
 
 // -------------------------------
-// SUMMARY RENDER
+// SUMMARY
 // -------------------------------
 function renderSummary() {
   if (!els.totalIncome || !els.totalExpenses || !els.totalBalance) return;
@@ -135,6 +158,7 @@ function renderIncomeList() {
 
     li.querySelector(".delete-btn").onclick = () => {
       incomeData.splice(index, 1);
+      saveData();
       renderIncomeList();
       renderSummary();
     };
@@ -163,6 +187,7 @@ function renderExpenseTable() {
 
     tr.querySelector(".delete-btn").onclick = () => {
       expenseData.splice(index, 1);
+      saveData();
       renderExpenseTable();
       renderSummary();
     };
@@ -186,9 +211,10 @@ if (els.incomeForm) {
     if (!source || !Number.isFinite(amount) || amount <= 0) return;
 
     incomeData.push({ source, amount });
+    saveData();
 
-    if (els.incomeSource) els.incomeSource.value = "";
-    if (els.incomeAmount) els.incomeAmount.value = "";
+    els.incomeSource.value = "";
+    els.incomeAmount.value = "";
 
     renderIncomeList();
     renderSummary();
@@ -207,15 +233,11 @@ if (els.expenseForm) {
 
     const today = new Date().toISOString().slice(0, 10);
 
-    expenseData.push({
-      date: today,
-      desc,
-      category,
-      amount
-    });
+    expenseData.push({ date: today, desc, category, amount });
+    saveData();
 
-    if (els.expenseDesc) els.expenseDesc.value = "";
-    if (els.expenseAmount) els.expenseAmount.value = "";
+    els.expenseDesc.value = "";
+    els.expenseAmount.value = "";
 
     renderExpenseTable();
     renderSummary();
@@ -223,66 +245,59 @@ if (els.expenseForm) {
 }
 
 // -------------------------------
-// AI PROMPT BUILDER
+// AI BUILDER
 // -------------------------------
 function buildPrompt(lang, totalIncome, totalExpenses, balance, incomeValues, expenseValues) {
   const safeLang = lang || "en";
 
   if (safeLang === "uz") {
     return `
-Siz juda talabchan, qattiq moliyaviy tahlilchisiz.
-Javobingizni faqat UZBEK tilida yozing.
-
+Siz juda talabchan moliyaviy tahlilchisiz.
 JAMI DAROMAD: ${totalIncome}
 JAMI XARAJATLAR: ${totalExpenses}
 QOLDIQ: ${balance}
 
-DAROMAD QIYMATLARI:
-${incomeValues.length ? incomeValues.join("\n") : "hech narsa yo'q"}
+DAROMAD:
+${incomeValues.length ? incomeValues.join("\n") : "yo‘q"}
 
-XARAJAT QIYMATLARI:
-${expenseValues.length ? expenseValues.join("\n") : "hech narsa yo'q"}
+XARAJAT:
+${expenseValues.length ? expenseValues.join("\n") : "yo‘q"}
 
 A) Qisqa xulosa  
 B) Spending patterns  
 C) Zaif joylar  
-D) Kategoriya bo‘yicha tahlil  
-E) O‘lchanadigan takliflar  
-F) Kelajak prognozi  
-G) Achchiq haqiqat paragrafi
+D) Kategoriya tahlili  
+E) Takliflar  
+F) Prognoz  
+G) Achchiq haqiqat
 `;
   }
 
   return `
-You are a strict personal finance analyst.
-Answer ONLY in ENGLISH.
+You are a strict financial analyst.
 
 TOTAL INCOME: ${totalIncome}
 TOTAL EXPENSES: ${totalExpenses}
 BALANCE: ${balance}
 
 INCOME VALUES:
-${incomeValues.length ? incomeValues.join("\n") : "none"}
+${incomeValues.join("\n")}
 
 EXPENSE VALUES:
-${expenseValues.length ? expenseValues.join("\n") : "none"}
+${expenseValues.join("\n")}
 
-Provide:
 A) Summary  
 B) Spending patterns  
 C) Weak points  
 D) Category analysis  
 E) Improvements  
-F) Future projection  
+F) Projection  
 G) Hard truth paragraph
 `;
 }
 
 // -------------------------------
-// AI ANALYZE BUTTON
-// -------------------------------
-// -------------------------------
-// AI ANALYZE BUTTON (3D ROBOT)
+// AI BUTTON
 // -------------------------------
 const aiRobotBtn = document.getElementById("ai-analyze-btn");
 
@@ -292,8 +307,8 @@ if (aiRobotBtn) {
     const totalExpenses = expenseData.reduce((s, e) => s + (e.amount || 0), 0);
     const balance = totalIncome - totalExpenses;
 
-    const incomeValues = incomeData.map(i => i.amount || 0);
-    const expenseValues = expenseData.map(e => e.amount || 0);
+    const incomeValues = incomeData.map(i => i.amount);
+    const expenseValues = expenseData.map(e => e.amount);
 
     const lang = els.langSelect ? els.langSelect.value : "en";
 
@@ -306,14 +321,12 @@ if (aiRobotBtn) {
       expenseValues
     );
 
-    const encoded = encodeURIComponent(prompt);
-    window.open(`https://chatgpt.com/?q=${encoded}`, "_blank");
+    window.open(`https://chatgpt.com/?q=${encodeURIComponent(prompt)}`, "_blank");
   });
 }
 
-
 // -------------------------------
-// MULTILINGUAL SYSTEM
+// MULTILINGUAL
 // -------------------------------
 const translations = {};
 let currentLangCode = "en";
@@ -345,12 +358,12 @@ if (els.langSelect) {
   });
 }
 
-// load default language
 loadLanguage("en");
 
 // -------------------------------
-// INITIAL RENDER
+// INITIAL LOAD + RENDER
 // -------------------------------
+loadData();
 renderSummary();
 renderIncomeList();
 renderExpenseTable();
