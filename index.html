@@ -41,18 +41,19 @@
           <option value="uz">O‘zbekcha</option>
         </select>
       </div>
-      <div class="currency-selector">
-  <label data-key="currencyLabel">Currency:</label>
-  <select id="currency-select">
-      <option value="KRW">₩ KRW</option>
-      <option value="USD">$ USD</option>
-      <option value="EUR">€ EUR</option>
-      <option value="JPY">¥ JPY</option>
-      <option value="GBP">£ GBP</option>
-      <option value="UZS">UZS</option>
-  </select>
-</div>
 
+      <!-- CURRENCY SELECTOR -->
+      <div class="currency-selector">
+        <label data-key="currencyLabel">Currency:</label>
+        <select id="currency-select">
+          <option value="KRW">₩ KRW</option>
+          <option value="USD">$ USD</option>
+          <option value="EUR">€ EUR</option>
+          <option value="JPY">¥ JPY</option>
+          <option value="GBP">£ GBP</option>
+          <option value="UZS">UZS</option>
+        </select>
+      </div>
 
       <p data-key="headerQuote">Control your money like an adult, not like a hungry student.</p>
     </header>
@@ -89,7 +90,7 @@
           </div>
 
           <div class="field">
-            <label data-key="amountLabel">Amount (₩)</label>
+            <label data-key="amountLabel">Amount</label>
             <input type="number" id="income-amount" min="0" required>
           </div>
 
@@ -123,7 +124,7 @@
           </div>
 
           <div class="field">
-            <label data-key="amountLabel">Amount (₩)</label>
+            <label data-key="amountLabel">Amount</label>
             <input type="number" id="expense-amount" min="0" required>
           </div>
 
@@ -146,7 +147,7 @@
             <th data-key="tableDate">Date</th>
             <th data-key="tableDesc">Description</th>
             <th data-key="tableCategory">Category</th>
-            <th class="right" data-key="tableAmount">Amount (₩)</th>
+            <th class="right" data-key="tableAmount">Amount</th>
             <th></th>
           </tr>
         </thead>
@@ -157,18 +158,14 @@
 
     <!-- AI ANALYSIS -->
     <section class="card" style="margin-top: 20px;">
-        
-        <h2 data-key="aiTitle">AI Budget Analysis</h2>
+      <h2 data-key="aiTitle">AI Budget Analysis</h2>
 
-        <button id="ai-analyze-btn" class="ai-img-btn" aria-label="AI byudjet tahlili">
+      <button id="ai-analyze-btn" class="ai-img-btn" aria-label="AI budget analysis">
         <img src="assets/ai-robot.png" alt="AI Robot" />
-        </button>
-
-
-
+      </button>
 
       <div id="analysis-output"
-          style="margin-top: 12px; white-space: pre-line; color: var(--text-sub); font-size: 0.9rem;">
+        style="margin-top: 12px; white-space: pre-line; color: var(--text-sub); font-size: 0.9rem;">
       </div>
     </section>
 
@@ -176,7 +173,6 @@
     <footer class="app-footer">
       <p data-key="footerText">Built for Botirov’s budget. No more “qayerga ketdi pul?”</p>
     </footer>
-
   </div>
 
   <script src="script.js"></script>
